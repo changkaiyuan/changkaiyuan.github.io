@@ -1,0 +1,103 @@
+
+
+.wrapper{
+    width:70%;
+    height:100%;
+    margin:auto;
+}
+
+#nav_wrapper{
+    position: relative;
+    top:0;
+    left:0;
+    width: 100%;
+    border: 1px solid white;
+    overflow: visible;
+
+}
+
+#logo{
+    display: inline-block;
+    color: white;
+    position: relative;
+    height: 50px;
+    width:55%;
+    border: 1px dotted white;
+    vertical-align: top;
+}
+#menu_bar{
+    display: inline-block;
+    position: absolute;
+    height: 50px;
+    width:45%;
+
+    border: 1px dotted white;
+    vertical-align: top;
+    position: absolute;
+    overflow: visible;
+
+}
+
+
+
+#menu li{
+    list-style:none;
+    display:inline-block;
+}
+
+#menu li a{
+    text-decoration: none;
+    position: relative;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    font-family:sans-serif;
+    display:block;
+    overflow:hidden;
+    padding: 14px 25px;
+    text-transform: uppercase;
+
+}
+
+#menu li a:before{
+    content:'';
+    width: 60px;
+    position: absolute;
+    border-bottom: 3px solid aliceblue;
+    bottom:0;
+    right:350px;
+    transition: 0.7s all;
+}
+
+#menu li a:hover:before{
+    right:0;
+
+}
+
+
+#logo h1 span{
+    color:red;
+}
+
+h1:before{
+    content:'';
+    position: absolute;
+    left:0%;
+    width:100%;
+    height:100%;
+    background: linear-gradient(90deg, transparent 0%, #000
+        5%, #000 100%);
+
+    animation: show_text 1.5s forwards;
+}
+
+@keyframes show_text{
+    0%
+    {
+        left: 0%;
+    }
+    100%
+    {
+        left:100%;
+    }
+}

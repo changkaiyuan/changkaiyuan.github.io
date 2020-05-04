@@ -5,6 +5,7 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
+    list-style-type: none;
 }
 
 html{
@@ -18,7 +19,7 @@ body
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background:#000;
+    /* background:#000; */
     /* overflow:hidden; */
 }
 
@@ -169,7 +170,7 @@ section{
 
 .titles{
     left:0;
-    /* height:300px; */
+    color: blueviolet;
     width: 40%;
     background-color: #fff;
     float:left;
@@ -187,4 +188,47 @@ section{
     width: 60%;
     background-color: bisque;
     font-size:1.4rem;
+    word-wrap:break-word;
+}
+
+/* icons */
+
+
+.icons{
+    position: relative;
+
+}
+
+.icons >li{
+    list-style-type: none;
+    margin: 10px;
+}
+
+
+.icons a{
+    display:inline-flex;
+    width: 40px;
+    height: 40px;
+    background: #2c3e50;
+    color:white;
+    margin:0 6px;
+    border-radius: 50%;
+    justify-content:center;
+    align-items: center;
+    transition: 0.4s;
+    font-size: 22px;
+
+
+}
+
+.icons a:hover{
+    background: #e67e22;
+}
+
+.icons a i{
+    transition: 0.4s linear;
+}
+
+.icons a:hover > i {
+    transform: scale(1.6) rotate(25deg);
 }

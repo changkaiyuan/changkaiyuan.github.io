@@ -7,23 +7,27 @@
 }
 
 #nav_wrapper{
-    position: relative;
+    position: fixed;
     top:0;
-    left:0;
-    width: 100%;
-    border: 1px solid white;
+    width: 80%;
+    margin:auto;
+    align-items: center;
+    justify-content: center;
+    /* border: 1px solid white; */
     overflow: visible;
+    z-index: 2000;
 
 }
 
 #logo{
     display: inline-block;
-    color: white;
+    color: green;
     position: relative;
     height: 50px;
     width:50%;
-    border: 1px dotted white;
+    /* border: 1px dotted white; */
     vertical-align: top;
+    background-color: aliceblue;
 }
 #menu_bar{
     display: inline-block;
@@ -31,7 +35,7 @@
     height: 50px;
     width:50%;
 
-    border: 1px dotted white;
+    /* border: 1px dotted white; */
     vertical-align: top;
     position: absolute;
     overflow: visible;

@@ -1,15 +1,31 @@
+let data, svg;
+let currentScene = 0;
+let selectedYear = "2023";
 const width = 900, height = 500;
-let svg, data, selectedYear = 2023, currentScene = 0;
 
 const sceneDescriptions = [
-  "Electric vehicles have steadily gained momentum from 2010 to <strong class=\"highlight\">2024</strong>, with a noticeable surge starting in <strong class=\"highlight\">2020</strong>. Explore how global sales evolved.",
-  "Which countries are leading the EV revolution in <strong class=\"highlight\">{year}</strong>? Use the dropdown menu to view the top 15 countries by sales.",
-  "Use the scatterplot below to explore electric vehicle adoption across countries in <strong class=\"highlight\">{year}</strong>. Hover on each circle to see exact numbers."
+  "Electric vehicles have steadily gained momentum from 2010 to <strong class='highlight'>2024</strong>, with a noticeable surge starting in <strong class='highlight'>2020</strong>. Explore how global sales evolved.",
+  "Which countries are leading the EV market in <strong class='highlight'>{year}</strong>? See top 15 by total units sold.",
+  "Click and explore the distribution of EV sales by country in <strong class='highlight'>{year}</strong>. Hover for details."
 ];
+
+function onYearChange(year) {
+  selectedYear = year;
+  showScene(currentScene);
+}
 
 function showScene(index) {
   currentScene = index;
   d3.select("#scene").html("");
+
+  // Toggle year dropdown visibility
+  const yearSelector = d3.select("#yearSelect");
+  if (index === 0) {
+    yearSelector.style("display", "none");
+  } else {
+    yearSelector.style("display", "inline-block");
+  }
+
   d3.select("#description").html(
     sceneDescriptions[index].replaceAll("{year}", `<strong class='highlight'>${selectedYear}</strong>`)
   );
@@ -24,32 +40,13 @@ function showScene(index) {
 
 d3.csv("data/IEA-EV-dataEV salesHistoricalCars.csv").then(raw => {
   data = raw.filter(d => d.parameter === "EV sales" && d.unit === "Vehicles");
-  populateYearSelector();
-  showScene(currentScene);
+  showScene(0);
 });
 
-function populateYearSelector() {
-  const years = Array.from(new Set(data.map(d => +d.year))).sort();
-  const select = d3.select("#yearSelect");
-  select.selectAll("option")
-    .data(years)
-    .enter()
-    .append("option")
-    .attr("value", d => d)
-    .text(d => d);
-
-  select.property("value", selectedYear);
-  select.on("change", function () {
-    selectedYear = +this.value;
-    showScene(currentScene);
-  });
-}
-
 function drawGlobalTrend() {
-  const worldData = data.filter(d => d.region === "World").map(d => ({
-    year: +d.year,
-    total: +d.value
-  })).sort((a, b) => a.year - b.year);
+  const worldData = data.filter(d => d.region === "World")
+    .map(d => ({ year: +d.year, total: +d.value }))
+    .sort((a, b) => a.year - b.year);
 
   const x = d3.scaleLinear().domain(d3.extent(worldData, d => d.year)).range([60, width - 40]);
   const y = d3.scaleLinear().domain([0, d3.max(worldData, d => d.total)]).range([height - 40, 40]);
@@ -57,25 +54,17 @@ function drawGlobalTrend() {
   svg.append("g").attr("transform", `translate(0,${height - 40})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
   svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
 
-  const line = d3.line()
-    .x(d => x(d.year))
-    .y(d => y(d.total));
-
+  const line = d3.line().x(d => x(d.year)).y(d => y(d.total));
   svg.append("path")
     .datum(worldData)
-    .attr("fill", "none")
-    .attr("stroke", "steelblue")
-    .attr("stroke-width", 2)
+    .attr("fill", "none").attr("stroke", "steelblue").attr("stroke-width", 2)
     .attr("d", line);
 
   svg.selectAll("circle")
     .data(worldData)
-    .enter()
-    .append("circle")
-    .attr("cx", d => x(d.year))
-    .attr("cy", d => y(d.total))
-    .attr("r", 4)
-    .attr("fill", "darkorange")
+    .enter().append("circle")
+    .attr("cx", d => x(d.year)).attr("cy", d => y(d.total)).attr("r", 4)
+    .attr("fill", "orange")
     .append("title").text(d => `${d.year}: ${Math.round(d.total).toLocaleString()} EVs`);
 
   svg.append("text")
@@ -83,30 +72,19 @@ function drawGlobalTrend() {
     .attr("class", "scene-title")
     .text("Global EV Sales Over Time (2010–2024)");
 
-  // Annotations
+  // Annotation: Start of rapid growth
   svg.append("line")
-    .attr("x1", x(2020)).attr("x2", x(2020))
-    .attr("y1", 40).attr("y2", height - 40)
-    .attr("class", "annotation-line");
+    .attr("x1", x(2020)).attr("x2", x(2020)).attr("y1", 40).attr("y2", height - 40)
+    .attr("stroke", "gray").attr("stroke-dasharray", "4");
 
   svg.append("text")
-    .attr("x", x(2020) + 5).attr("y", 50)
+    .attr("x", x(2020) + 5).attr("y", 60)
     .attr("class", "annotation")
     .text("Rapid growth begins (2020)");
-
-  svg.append("line")
-    .attr("x1", x(2023)).attr("x2", x(2023))
-    .attr("y1", 40).attr("y2", height - 40)
-    .attr("class", "annotation-line");
-
-  svg.append("text")
-    .attr("x", x(2023) + 5).attr("y", 60)
-    .attr("class", "annotation")
-    .text("2023 record sales");
 }
 
 function drawCountryBarChart() {
-  const filtered = data.filter(d => +d.year === selectedYear && d.region !== "World");
+  const filtered = data.filter(d => +d.year === +selectedYear && d.region !== "World");
   const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
   const entries = Array.from(grouped, ([country, sales]) => ({ country, sales }))
     .sort((a, b) => d3.descending(a.sales, b.sales)).slice(0, 15);
@@ -119,12 +97,9 @@ function drawCountryBarChart() {
 
   svg.selectAll("rect")
     .data(entries)
-    .enter()
-    .append("rect")
-    .attr("x", x(0))
-    .attr("y", d => y(d.country))
-    .attr("width", d => x(d.sales) - 60)
-    .attr("height", y.bandwidth())
+    .enter().append("rect")
+    .attr("x", x(0)).attr("y", d => y(d.country))
+    .attr("width", d => x(d.sales) - 60).attr("height", y.bandwidth())
     .attr("fill", "teal")
     .append("title").text(d => `${d.country}: ${Math.round(d.sales).toLocaleString()} EVs`);
 
@@ -135,7 +110,7 @@ function drawCountryBarChart() {
 }
 
 function drawInteractiveScatter() {
-  const filtered = data.filter(d => +d.year === selectedYear && d.region !== "World");
+  const filtered = data.filter(d => +d.year === +selectedYear && d.region !== "World");
   const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
   const entries = Array.from(grouped, ([region, value]) => ({ region, value }));
 
@@ -148,12 +123,9 @@ function drawInteractiveScatter() {
 
   svg.selectAll("circle")
     .data(entries)
-    .enter()
-    .append("circle")
+    .enter().append("circle")
     .attr("cx", d => x(d.region) + x.bandwidth() / 2)
-    .attr("cy", d => y(d.value))
-    .attr("r", 6)
-    .attr("fill", "tomato")
+    .attr("cy", d => y(d.value)).attr("r", 6).attr("fill", "tomato")
     .append("title").text(d => `${d.region}: ${Math.round(d.value).toLocaleString()} EVs`);
 
   svg.append("text")

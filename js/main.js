@@ -40,10 +40,14 @@ function showScene(index) {
 }
 
 function drawGlobalTrend() {
-  const worldData = data.filter(d => d.region === "World").map(d => ({
-    year: +d.year,
-    total: +d.value
-  })).sort((a, b) => a.year - b.year);
+  const grouped = d3.rollup(
+    data.filter(d => d.region === "World"),
+    v => d3.sum(v, d => +d.value),
+    d => +d.year
+  );
+
+  const worldData = Array.from(grouped, ([year, total]) => ({ year, total }))
+    .sort((a, b) => a.year - b.year);
 
   const x = d3.scaleLinear().domain(d3.extent(worldData, d => d.year)).range([60, width - 40]);
   const y = d3.scaleLinear().domain([0, d3.max(worldData, d => d.total)]).range([height - 40, 40]);
@@ -52,12 +56,13 @@ function drawGlobalTrend() {
   svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
 
   const line = d3.line().x(d => x(d.year)).y(d => y(d.total));
-  svg.append("path").datum(worldData).attr("fill", "none").attr("stroke", "steelblue").attr("stroke-width", 2).attr("d", line);
+  svg.append("path").datum(worldData)
+    .attr("fill", "none").attr("stroke", "steelblue").attr("stroke-width", 2).attr("d", line);
 
   svg.selectAll("circle").data(worldData).enter().append("circle")
     .attr("cx", d => x(d.year)).attr("cy", d => y(d.total)).attr("r", 4).attr("fill", "orange");
 
-  // Annotation
+  // Rapid Growth
   const growth = worldData.find(d => d.year === 2020);
   svg.append("line")
     .attr("x1", x(2020)).attr("x2", x(2020)).attr("y1", y(0)).attr("y2", y(growth.total))
@@ -69,8 +74,7 @@ function drawGlobalTrend() {
     .attr("fill", "gray").attr("font-size", "13px");
 
   svg.append("text")
-    .attr("x", width / 2).attr("y", 30)
-    .attr("text-anchor", "middle")
+    .attr("x", width / 2).attr("y", 30).attr("text-anchor", "middle")
     .text("Global EV Sales Over Time (2010–2024)");
 
   d3.select("#description").html(`EV sales grew slowly until <strong>2020</strong>, then surged globally in the following years.`);

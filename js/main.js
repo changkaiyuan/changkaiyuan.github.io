@@ -40,13 +40,14 @@ function showScene(index) {
 }
 
 function drawGlobalTrend() {
-  const worldData = d3.rollups(
-    data.filter(d => d.region === "World"),
-    v => d3.sum(v, d => +d.value),
-    d => +d.year
-  ).map(([year, total]) => ({ year, total }))
-    .sort((a, b) => a.year - b.year);
-
+  const worldData = Array.from(
+    d3.rollup(
+      data.filter(d => d.region === "World"),
+      v => d3.sum(v, d => +d.value),
+      d => +d.year
+    ),
+    ([year, total]) => ({ year, total })
+  ).sort((a, b) => a.year - b.year);
   const x = d3.scaleLinear().domain(d3.extent(worldData, d => d.year)).range([60, width - 40]);
   const y = d3.scaleLinear().domain([0, d3.max(worldData, d => d.total)]).range([height - 40, 40]);
 

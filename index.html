@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EV Sales Narrative Visualization</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    #tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 4px;
+      pointer-events: none;
+      font-size: 12px;
+      display: none;
+    }
+  </style>
 </head>
 <body>
   <div id="container">
@@ -29,15 +41,19 @@
     </div>
   </div>
 
+  <div id="tooltip"></div>
+
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
     let data;
     let selectedYear = 2023;
     let currentScene = 0;
-
     const width = 900, height = 500;
+
     const svg = d3.select("#scene").append("svg")
       .attr("width", width).attr("height", height);
+
+    const tooltip = d3.select("#tooltip");
 
     function showScene(index) {
       svg.selectAll("*").remove();
@@ -57,6 +73,17 @@
       data = raw.filter(d => d.parameter === "EV sales" && d.unit === "Vehicles");
       showScene(0);
     });
+
+    function showTooltip(html, event) {
+      tooltip.html(html)
+        .style("left", event.pageX + 10 + "px")
+        .style("top", event.pageY - 28 + "px")
+        .style("display", "block");
+    }
+
+    function hideTooltip() {
+      tooltip.style("display", "none");
+    }
 
     function drawGlobalTrend() {
       const worldData = data
@@ -99,7 +126,8 @@
         .attr("cy", d => y(d.total))
         .attr("r", 4)
         .attr("fill", "darkorange")
-        .append("title").text(d => `${d.year}: ${Math.round(d.total).toLocaleString()} EVs`);
+        .on("mouseover", (event, d) => showTooltip(`Year: ${d.year}<br/>EV Sales: ${Math.round(d.total).toLocaleString()}`, event))
+        .on("mouseout", hideTooltip);
 
       svg.append("text")
         .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
@@ -128,7 +156,8 @@
         .attr("width", d => x(d.sales) - 60)
         .attr("height", y.bandwidth())
         .attr("fill", "teal")
-        .append("title").text(d => `${d.country}: ${Math.round(d.sales).toLocaleString()} EVs`);
+        .on("mouseover", (event, d) => showTooltip(`Country: ${d.country}<br/>EV Sales: ${Math.round(d.sales).toLocaleString()}`, event))
+        .on("mouseout", hideTooltip);
 
       svg.append("text")
         .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
@@ -156,7 +185,8 @@
         .attr("cy", d => y(d.value))
         .attr("r", 6)
         .attr("fill", "tomato")
-        .append("title").text(d => `${d.region}: ${Math.round(d.value).toLocaleString()} EVs`);
+        .on("mouseover", (event, d) => showTooltip(`Country: ${d.region}<br/>EV Sales: ${Math.round(d.value).toLocaleString()}`, event))
+        .on("mouseout", hideTooltip);
 
       svg.append("text")
         .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")

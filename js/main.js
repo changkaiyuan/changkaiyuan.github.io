@@ -74,7 +74,7 @@ function drawGlobalTrend() {
 
   svg.append("text")
     .attr("x", width / 2).attr("y", 30).attr("text-anchor", "middle")
-    .text("Global EV Sales Over Time (2010–2024)");
+    .text("Global EV Sales Over Time (2010–2023)");
 
   d3.select("#description").html(`EV sales grew slowly until <strong>2020</strong>, then surged globally in the following years.`);
 }

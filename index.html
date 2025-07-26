@@ -37,30 +37,40 @@
     });
 
     function drawGlobalTrend() {
-      const worldData = data.filter(d => d.region === "World").map(d => ({
-        year: +d.year,
-        total: +d.value
-      })).sort((a, b) => a.year - b.year);
+    const worldData = data
+        .filter(d => d.region === "World")
+        .reduce((acc, d) => {
+        const y = +d.year;
+        acc[y] = (acc[y] || 0) + +d.value;
+        return acc;
+        }, {});
 
-      const x = d3.scaleLinear().domain(d3.extent(worldData, d => d.year)).range([60, width-40]);
-      const y = d3.scaleLinear().domain([0, d3.max(worldData, d => d.total)]).range([height-40, 40]);
+    const entries = Object.entries(worldData).map(([year, total]) => ({
+        year: +year,
+        total
+    })).sort((a, b) => a.year - b.year);
 
-      svg.append("g").attr("transform", `translate(0,${height-40})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
-      svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
+    const x = d3.scaleLinear().domain(d3.extent(entries, d => d.year)).range([60, width - 40]);
+    const y = d3.scaleLinear().domain([0, d3.max(entries, d => d.total)]).range([height - 40, 40]);
 
-      const line = d3.line()
+    svg.append("g").attr("transform", `translate(0,${height - 40})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+    svg.append("g").attr("transform", `translate(60,0)`)
+        .call(d3.axisLeft(y));
+
+    const line = d3.line()
         .x(d => x(d.year))
         .y(d => y(d.total));
 
-      svg.append("path")
-        .datum(worldData)
+    svg.append("path")
+        .datum(entries)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 2)
         .attr("d", line);
 
-      svg.selectAll("circle")
-        .data(worldData)
+    svg.selectAll("circle")
+        .data(entries)
         .enter()
         .append("circle")
         .attr("cx", d => x(d.year))
@@ -69,7 +79,7 @@
         .attr("fill", "darkorange")
         .append("title").text(d => `${d.year}: ${Math.round(d.total).toLocaleString()} EVs`);
 
-      svg.append("text")
+    svg.append("text")
         .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
         .attr("class", "scene-title")
         .text("Global EV Sales Over Time (2010–2024)");
@@ -106,7 +116,7 @@
     }
 
     function drawInteractiveScatter() {
-      const year = 2024;
+      const year = 2023;
       const filtered = data.filter(d => +d.year === year && d.region !== "World");
       const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
       const entries = Array.from(grouped, ([region, value]) => ({ region, value }));
@@ -131,7 +141,7 @@
       svg.append("text")
         .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
         .attr("class", "scene-title")
-        .text("Explore EV Sales by Country (2024)");
+        .text("Explore EV Sales by Country (2023)");
     }
   </script>
 </body>

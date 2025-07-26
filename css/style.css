@@ -48,3 +48,15 @@ button, select {
   color: darkred;
   font-weight: bold;
 }
+
+.tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 999;
+  display: none;
+}

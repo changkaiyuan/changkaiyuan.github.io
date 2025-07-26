@@ -114,13 +114,13 @@
         .on("mouseout", hideTooltip);
 
       svg.append("line")
-        .attr("x1", x(2021)).attr("x2", x(2021))
+        .attr("x1", x(2020)).attr("x2", x(2020))
         .attr("y1", y(0)).attr("y2", y(worldData[2021]))
         .attr("class", "annotation-line");
 
       svg.append("text")
-        .attr("x", x(2021) + 5)
-        .attr("y", y(worldData[2021]) - 10)
+        .attr("x", x(2020) + 5)
+        .attr("y", y(worldData[2020]) - 10)
         .attr("class", "annotation")
         .text("Rapid growth begins");
 

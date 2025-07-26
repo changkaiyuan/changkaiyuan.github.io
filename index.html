@@ -1,1 +1,136 @@
-Hello World
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EV Sales Narrative Visualization</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="container">
+    <h1>The Rise of Electric Vehicles (2010–2024)</h1>
+    <div id="scene"></div>
+    <div class="controls">
+      <button onclick="showScene(0)">1. Global Sales Trend</button>
+      <button onclick="showScene(1)">2. 2023 Country Sales</button>
+      <button onclick="showScene(2)">3. Interactive Exploration</button>
+    </div>
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    let data;
+    const width = 900, height = 500;
+    const svg = d3.select("#scene").append("svg")
+      .attr("width", width).attr("height", height);
+
+    function showScene(index) {
+      svg.selectAll("*").remove();
+      if (index === 0) drawGlobalTrend();
+      else if (index === 1) drawCountryBarChart();
+      else if (index === 2) drawInteractiveScatter();
+    }
+
+    d3.csv("data/IEA-EV-dataEV salesHistoricalCars.csv").then(raw => {
+      data = raw.filter(d => d.parameter === "EV sales" && d.unit === "Vehicles");
+      showScene(0);
+    });
+
+    function drawGlobalTrend() {
+      const salesByYear = d3.rollup(data, v => d3.sum(v, d => +d.value), d => +d.year);
+      const entries = Array.from(salesByYear, ([year, total]) => ({ year, total })).sort((a,b) => a.year - b.year);
+
+      const x = d3.scaleLinear().domain(d3.extent(entries, d => d.year)).range([60, width-40]);
+      const y = d3.scaleLinear().domain([0, d3.max(entries, d => d.total)]).range([height-40, 40]);
+
+      svg.append("g").attr("transform", `translate(0,${height-40})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
+      svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
+
+      const line = d3.line()
+        .x(d => x(d.year))
+        .y(d => y(d.total));
+
+      svg.append("path")
+        .datum(entries)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 2)
+        .attr("d", line);
+
+      svg.selectAll("circle")
+        .data(entries)
+        .enter()
+        .append("circle")
+        .attr("cx", d => x(d.year))
+        .attr("cy", d => y(d.total))
+        .attr("r", 4)
+        .attr("fill", "darkorange")
+        .append("title").text(d => `${d.year}: ${Math.round(d.total).toLocaleString()} EVs`);
+
+      svg.append("text")
+        .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
+        .attr("class", "scene-title")
+        .text("Global EV Sales Over Time (2010–2024)");
+    }
+
+    function drawCountryBarChart() {
+      const year = 2023;
+      const filtered = data.filter(d => +d.year === year);
+      const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
+      const entries = Array.from(grouped, ([country, sales]) => ({ country, sales }))
+        .sort((a, b) => d3.descending(a.sales, b.sales)).slice(0, 15);
+
+      const x = d3.scaleLinear().domain([0, d3.max(entries, d => d.sales)]).range([60, width - 20]);
+      const y = d3.scaleBand().domain(entries.map(d => d.country)).range([60, height - 40]).padding(0.1);
+
+      svg.append("g").attr("transform", `translate(0,${height-40})`).call(d3.axisBottom(x));
+      svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
+
+      svg.selectAll("rect")
+        .data(entries)
+        .enter()
+        .append("rect")
+        .attr("x", x(0))
+        .attr("y", d => y(d.country))
+        .attr("width", d => x(d.sales) - 60)
+        .attr("height", y.bandwidth())
+        .attr("fill", "teal")
+        .append("title").text(d => `${d.country}: ${Math.round(d.sales).toLocaleString()} EVs`);
+
+      svg.append("text")
+        .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
+        .attr("class", "scene-title")
+        .text(`Top 15 Countries by EV Sales in ${year}`);
+    }
+
+    function drawInteractiveScatter() {
+      const year = 2023;
+      const filtered = data.filter(d => +d.year === year);
+      const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
+      const entries = Array.from(grouped, ([region, value]) => ({ region, value }));
+
+      const x = d3.scaleBand().domain(entries.map(d => d.region)).range([60, width - 40]).padding(0.2);
+      const y = d3.scaleLinear().domain([0, d3.max(entries, d => d.value)]).range([height - 40, 60]);
+
+      svg.append("g").attr("transform", `translate(0,${height - 40})`).call(d3.axisBottom(x)).selectAll("text")
+        .attr("transform", "rotate(-45)").style("text-anchor", "end");
+      svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
+
+      svg.selectAll("circle")
+        .data(entries)
+        .enter()
+        .append("circle")
+        .attr("cx", d => x(d.region) + x.bandwidth() / 2)
+        .attr("cy", d => y(d.value))
+        .attr("r", 6)
+        .attr("fill", "tomato")
+        .append("title").text(d => `${d.region}: ${Math.round(d.value).toLocaleString()} EVs`);
+
+      svg.append("text")
+        .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
+        .attr("class", "scene-title")
+        .text("Explore EV Sales by Country (2023)");
+    }
+  </script>
+</body>
+</html>

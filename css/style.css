@@ -1,56 +1,45 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f9f9f9;
+  background: #f7f9fc;
   margin: 0;
   padding: 0;
   text-align: center;
 }
 
+h1 {
+  color: #333;
+  padding: 20px 0 10px;
+}
+
 #container {
-  max-width: 960px;
+  max-width: 1000px;
   margin: auto;
   padding: 20px;
 }
 
-h1 {
-  color: #333;
-  font-size: 2em;
+svg {
+  background: white;
+  border: 1px solid #ccc;
   margin-bottom: 20px;
 }
 
-svg {
-  background: #fff;
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
-}
-
 .controls {
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .controls button,
 .controls select {
-  margin: 5px;
-  padding: 6px 12px;
+  margin: 0 5px;
+  padding: 5px 10px;
   font-size: 14px;
-  cursor: pointer;
-  border: 1px solid #aaa;
-  background-color: #fff;
-  border-radius: 4px;
-}
-
-.controls button:hover,
-.controls select:hover {
-  background-color: #f0f0f0;
 }
 
 .description-box {
-  max-width: 900px;
+  max-width: 800px;
   margin: 20px auto;
   font-size: 16px;
   color: #444;
   line-height: 1.5;
-  text-align: center;
 }
 
 .highlight {
@@ -58,31 +47,20 @@ svg {
   font-weight: bold;
 }
 
-.annotation {
-  font-size: 14px;
-  fill: gray;
-}
-
-.annotation-line {
-  stroke: gray;
-  stroke-dasharray: 4;
-}
-
 .scene-title {
   font-size: 18px;
   font-weight: bold;
   fill: #333;
-  text-anchor: middle;
 }
 
-#tooltip {
-  position: absolute;
-  text-align: center;
-  padding: 6px;
+.annotation {
+  fill: darkslategray;
   font-size: 12px;
-  background: #eee;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  pointer-events: none;
-  display: none;
+  font-style: italic;
+}
+
+.annotation-line {
+  stroke: gray;
+  stroke-dasharray: 4 2;
+  stroke-width: 1;
 }

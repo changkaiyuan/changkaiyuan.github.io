@@ -37,11 +37,13 @@
     });
 
     function drawGlobalTrend() {
-      const salesByYear = d3.rollup(data, v => d3.sum(v, d => +d.value), d => +d.year);
-      const entries = Array.from(salesByYear, ([year, total]) => ({ year, total })).sort((a,b) => a.year - b.year);
+      const worldData = data.filter(d => d.region === "World").map(d => ({
+        year: +d.year,
+        total: +d.value
+      })).sort((a, b) => a.year - b.year);
 
-      const x = d3.scaleLinear().domain(d3.extent(entries, d => d.year)).range([60, width-40]);
-      const y = d3.scaleLinear().domain([0, d3.max(entries, d => d.total)]).range([height-40, 40]);
+      const x = d3.scaleLinear().domain(d3.extent(worldData, d => d.year)).range([60, width-40]);
+      const y = d3.scaleLinear().domain([0, d3.max(worldData, d => d.total)]).range([height-40, 40]);
 
       svg.append("g").attr("transform", `translate(0,${height-40})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
       svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
@@ -51,14 +53,14 @@
         .y(d => y(d.total));
 
       svg.append("path")
-        .datum(entries)
+        .datum(worldData)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 2)
         .attr("d", line);
 
       svg.selectAll("circle")
-        .data(entries)
+        .data(worldData)
         .enter()
         .append("circle")
         .attr("cx", d => x(d.year))
@@ -75,7 +77,7 @@
 
     function drawCountryBarChart() {
       const year = 2023;
-      const filtered = data.filter(d => +d.year === year);
+      const filtered = data.filter(d => +d.year === year && d.region !== "World");
       const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
       const entries = Array.from(grouped, ([country, sales]) => ({ country, sales }))
         .sort((a, b) => d3.descending(a.sales, b.sales)).slice(0, 15);
@@ -105,7 +107,7 @@
 
     function drawInteractiveScatter() {
       const year = 2023;
-      const filtered = data.filter(d => +d.year === year);
+      const filtered = data.filter(d => +d.year === year && d.region !== "World");
       const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
       const entries = Array.from(grouped, ([region, value]) => ({ region, value }));
 

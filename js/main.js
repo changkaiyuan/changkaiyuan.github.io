@@ -111,8 +111,7 @@ function drawCountryBarChart() {
     .attr("y", d => y(d.country))
     .attr("width", d => x(d.sales) - 60)
     .attr("height", y.bandwidth())
-    .attr("fill", "teal")
-    .append("title").text(d => `${d.country}: ${Math.round(d.sales).toLocaleString()} EVs`);
+    .attr("fill", "teal");
 
   svg.append("text")
     .attr("x", width / 2).attr("y", 30).attr("text-anchor", "middle")
@@ -124,6 +123,17 @@ function drawInteractiveScatter() {
   const filtered = data.filter(d => +d.year === selectedYear && d.region !== "World");
   const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
   const entries = Array.from(grouped, ([region, value]) => ({ region, value }));
+
+  const tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("padding", "6px 10px")
+    .style("background", "rgba(0,0,0,0.75)")
+    .style("color", "white")
+    .style("border-radius", "4px")
+    .style("font-size", "12px")
+    .style("pointer-events", "none")
+    .style("display", "none");
 
   const x = d3.scaleBand().domain(entries.map(d => d.region)).range([60, width - 40]).padding(0.2);
   const y = d3.scaleLinear().domain([0, d3.max(entries, d => d.value)]).range([height - 40, 60]);
@@ -140,7 +150,17 @@ function drawInteractiveScatter() {
     .attr("cy", d => y(d.value))
     .attr("r", 6)
     .attr("fill", "tomato")
-    .append("title").text(d => `${d.region}: ${Math.round(d.value).toLocaleString()} EVs`);
+    .on("mouseover", (event, d) => {
+      tooltip.style("display", "block")
+        .html(`<strong>${d.region}</strong><br>${Math.round(d.value).toLocaleString()} EVs`);
+    })
+    .on("mousemove", event => {
+      tooltip.style("left", `${event.pageX + 10}px`)
+             .style("top", `${event.pageY - 28}px`);
+    })
+    .on("mouseout", () => {
+      tooltip.style("display", "none");
+    });
 
   svg.append("text")
     .attr("x", width / 2).attr("y", 30).attr("text-anchor", "middle")

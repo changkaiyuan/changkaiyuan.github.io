@@ -1,62 +1,88 @@
 body {
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
   margin: 0;
   padding: 0;
+  text-align: center;
 }
 
 #container {
-  padding: 20px;
-  max-width: 1000px;
+  max-width: 960px;
   margin: auto;
+  padding: 20px;
 }
 
 h1 {
-  text-align: center;
+  color: #333;
+  font-size: 2em;
   margin-bottom: 20px;
 }
 
-.controls {
-  text-align: center;
-  margin-top: 20px;
+svg {
+  background: #fff;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
 }
 
-button {
-  margin: 0 5px;
+.controls {
+  margin-top: 15px;
+}
+
+.controls button,
+.controls select {
+  margin: 5px;
   padding: 6px 12px;
   font-size: 14px;
   cursor: pointer;
-}
-
-select {
-  padding: 6px;
-  font-size: 14px;
-}
-
-#tooltip {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  padding: 6px 10px;
+  border: 1px solid #aaa;
+  background-color: #fff;
   border-radius: 4px;
-  pointer-events: none;
-  font-size: 12px;
-  display: none;
-  z-index: 10;
+}
+
+.controls button:hover,
+.controls select:hover {
+  background-color: #f0f0f0;
+}
+
+.description-box {
+  max-width: 900px;
+  margin: 20px auto;
+  font-size: 16px;
+  color: #444;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.highlight {
+  color: darkred;
+  font-weight: bold;
+}
+
+.annotation {
+  font-size: 14px;
+  fill: gray;
+}
+
+.annotation-line {
+  stroke: gray;
+  stroke-dasharray: 4;
 }
 
 .scene-title {
   font-size: 18px;
   font-weight: bold;
   fill: #333;
+  text-anchor: middle;
 }
 
-.annotation {
+#tooltip {
+  position: absolute;
+  text-align: center;
+  padding: 6px;
   font-size: 12px;
-  fill: #333;
-  font-style: italic;
-}
-
-.annotation-line {
-  stroke: gray;
-  stroke-dasharray: 4;
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  pointer-events: none;
+  display: none;
 }

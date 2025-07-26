@@ -1,53 +1,51 @@
 body {
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
   text-align: center;
-  margin: 0;
-  padding: 0;
-  background: #f5f5f5;
+  background-color: #f5f7fa;
 }
 
 h1 {
-  margin-top: 20px;
   font-size: 28px;
+  font-weight: bold;
+  margin-top: 20px;
 }
 
-#scene {
-  margin: 0 auto;
-  width: 900px;
-  background: white;
-  border: 1px solid #ccc;
+#scene svg {
+  background-color: white;
+  margin: auto;
+  display: block;
+  border: 1px solid #ddd;
 }
 
-.description {
-  margin-top: 15px;
+#description {
+  margin: 20px auto;
+  width: 80%;
   font-size: 16px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .controls {
-  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
 }
 
-.controls button,
-.controls select {
-  margin: 5px;
-  padding: 10px;
+.controls button, .controls select {
+  padding: 8px 12px;
   font-size: 14px;
+  cursor: pointer;
 }
 
-.controls .active {
-  background: #007bff;
+.controls button.active {
+  background-color: #007bff;
   color: white;
-  border: none;
 }
 
 .tooltip {
   position: absolute;
-  background-color: rgba(0,0,0,0.8);
-  color: white;
-  padding: 8px 12px;
+  background: #333;
+  color: #fff;
+  padding: 6px 10px;
   border-radius: 4px;
   pointer-events: none;
   font-size: 13px;

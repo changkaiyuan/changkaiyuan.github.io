@@ -1,0 +1,62 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.controls {
+  text-align: center;
+  margin-top: 20px;
+}
+
+button {
+  margin: 0 5px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+select {
+  padding: 6px;
+  font-size: 14px;
+}
+
+#tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  pointer-events: none;
+  font-size: 12px;
+  display: none;
+  z-index: 10;
+}
+
+.scene-title {
+  font-size: 18px;
+  font-weight: bold;
+  fill: #333;
+}
+
+.annotation {
+  font-size: 12px;
+  fill: #333;
+  font-style: italic;
+}
+
+.annotation-line {
+  stroke: gray;
+  stroke-dasharray: 4;
+}

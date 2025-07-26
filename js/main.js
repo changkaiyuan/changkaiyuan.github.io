@@ -23,19 +23,20 @@ function showScene(index) {
 d3.csv("data/IEA-EV-dataEV salesHistoricalCars.csv").then(raw => {
   data = raw.filter(d => d.parameter === "EV sales" && d.unit === "Vehicles");
   showScene(0);
-});
 
-d3.select("#year-selector").on("change", function () {
-  selectedYear = +this.value;
-  const currentScene = document.querySelector(".controls .active")?.getAttribute("data-scene") || "0";
-  showScene(+currentScene);
-});
+  // Move these inside to ensure DOM exists
+  d3.select("#year-selector").on("change", function () {
+    selectedYear = +this.value;
+    const currentScene = document.querySelector(".controls .active")?.getAttribute("data-scene") || "0";
+    showScene(+currentScene);
+  });
 
-d3.selectAll(".controls button").on("click", function () {
-  d3.selectAll(".controls button").classed("active", false);
-  d3.select(this).classed("active", true);
-  const index = +d3.select(this).attr("data-scene");
-  showScene(index);
+  d3.selectAll(".controls button").on("click", function () {
+    d3.selectAll(".controls button").classed("active", false);
+    d3.select(this).classed("active", true);
+    const index = +d3.select(this).attr("data-scene");
+    showScene(index);
+  });
 });
 
 function drawGlobalTrend() {
@@ -48,7 +49,7 @@ function drawGlobalTrend() {
   const y = d3.scaleLinear().domain([0, d3.max(worldData, d => d.total)]).range([height - 40, 40]);
 
   svg.append("g").attr("transform", `translate(0,${height - 40})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
-  svg.append("g").attr("transform", `translate(60,0)").call(d3.axisLeft(y));
+  svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
 
   const line = d3.line()
     .x(d => x(d.year))
@@ -104,7 +105,7 @@ function drawCountryBarChart() {
   const y = d3.scaleBand().domain(entries.map(d => d.country)).range([60, height - 40]).padding(0.1);
 
   svg.append("g").attr("transform", `translate(0,${height - 40})`).call(d3.axisBottom(x));
-  svg.append("g").attr("transform", `translate(60,0)").call(d3.axisLeft(y));
+  svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
 
   svg.selectAll("rect")
     .data(entries)
@@ -136,34 +137,4 @@ function drawInteractiveScatter() {
 
   svg.append("g").attr("transform", `translate(0,${height - 40})`).call(d3.axisBottom(x)).selectAll("text")
     .attr("transform", "rotate(-45)").style("text-anchor", "end");
-  svg.append("g").attr("transform", `translate(60,0)").call(d3.axisLeft(y));
-
-  const tooltip = d3.select("#tooltip");
-
-  svg.selectAll("circle")
-    .data(entries)
-    .enter()
-    .append("circle")
-    .attr("cx", d => x(d.region) + x.bandwidth() / 2)
-    .attr("cy", d => y(d.value))
-    .attr("r", 6)
-    .attr("fill", "tomato")
-    .on("mouseover", (event, d) => {
-      tooltip.style("display", "block")
-        .html(`<strong>${d.region}</strong><br>${Math.round(d.value).toLocaleString()} EVs`);
-    })
-    .on("mousemove", event => {
-      tooltip.style("left", `${event.pageX + 10}px`)
-        .style("top", `${event.pageY - 28}px`);
-    })
-    .on("mouseout", () => {
-      tooltip.style("display", "none");
-    });
-
-  svg.append("text")
-    .attr("x", width / 2).attr("y", 30).attr("text-anchor", "middle")
-    .attr("class", "scene-title")
-    .text("Explore EV Sales by Country");
-
-  d3.select("#description").html(`This scatter plot allows you to explore EV sales by country for the year <strong>${selectedYear}</strong>. Hover over each point to view details.`);
-}
+  svg.append("g").attr("transform", `translate(60,0)

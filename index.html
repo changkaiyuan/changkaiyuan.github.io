@@ -12,7 +12,7 @@
     <div id="scene"></div>
     <div class="controls">
       <button onclick="showScene(0)">1. Global Sales Trend</button>
-      <button onclick="showScene(1)">2. 2023 Country Sales</button>
+      <button onclick="showScene(1)">2. 2024 Country Sales</button>
       <button onclick="showScene(2)">3. Interactive Exploration</button>
     </div>
   </div>
@@ -76,7 +76,7 @@
     }
 
     function drawCountryBarChart() {
-      const year = 2023;
+      const year = 2024;
       const filtered = data.filter(d => +d.year === year && d.region !== "World");
       const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
       const entries = Array.from(grouped, ([country, sales]) => ({ country, sales }))
@@ -106,7 +106,7 @@
     }
 
     function drawInteractiveScatter() {
-      const year = 2023;
+      const year = 2024;
       const filtered = data.filter(d => +d.year === year && d.region !== "World");
       const grouped = d3.rollup(filtered, v => d3.sum(v, d => +d.value), d => d.region);
       const entries = Array.from(grouped, ([region, value]) => ({ region, value }));
@@ -131,7 +131,7 @@
       svg.append("text")
         .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
         .attr("class", "scene-title")
-        .text("Explore EV Sales by Country (2023)");
+        .text("Explore EV Sales by Country (2024)");
     }
   </script>
 </body>

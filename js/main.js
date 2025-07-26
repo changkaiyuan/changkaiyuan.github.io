@@ -5,7 +5,7 @@ const svg = d3.select("#scene").append("svg")
 
 let data = [];
 let selectedYear = 2023;
-const excludedRegions = ["World", "EU 27"];
+const excludedRegions = ["World", "EU27", "Europe"];
 
 d3.csv("data/IEA-EV-dataEV salesHistoricalCars.csv").then(raw => {
   data = raw.filter(d => d.parameter === "EV sales" && d.unit === "Vehicles");

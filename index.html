@@ -1,31 +1,35 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <div class="tooltip">EV Sales Narrative Visualization</div>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EV Sales Narrative Visualization</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="container">
     <h1>The Rise of Electric Vehicles (2010–2024)</h1>
     <div id="scene"></div>
-    <p id="description"></p>
+
+    <select id="year-selector">
+      <option value="2023" selected>2023</option>
+      <option value="2022">2022</option>
+      <option value="2021">2021</option>
+      <option value="2020">2020</option>
+      <option value="2019">2019</option>
+      <option value="2018">2018</option>
+    </select>
+
     <div class="controls">
-      <button onclick="showScene(0)">1. Global Sales Trend</button>
-      <button onclick="showScene(1)">2. Country Sales</button>
-      <button onclick="showScene(2)">3. Interactive Exploration</button>
-      <select id="yearSelect" onchange="onYearChange(this.value)">
-        <option value="2020">2020</option>
-        <option value="2021">2021</option>
-        <option value="2022">2022</option>
-        <option value="2023" selected>2023</option>
-        <option value="2024">2024</option>
-      </select>
+      <button data-scene="0" class="active">1. Global Trend</button>
+      <button data-scene="1">2. Top Countries</button>
+      <button data-scene="2">3. Explore by Country</button>
     </div>
+
+    <div id="description"></div>
+    <div id="tooltip" class="tooltip"></div>
   </div>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="js/main.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>

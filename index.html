@@ -9,23 +9,13 @@
 <body>
   <div id="container">
     <h1>The Rise of Electric Vehicles (2010–2024)</h1>
-    <div id="scene"></div>
-    <div class="controls">
+    <div id="scene" class="centered"></div>
+    <div id="description" class="centered description-box"></div>
+    <div class="controls centered">
       <button onclick="showScene(0)">1. Global Sales Trend</button>
       <button onclick="showScene(1)">2. Country Sales</button>
       <button onclick="showScene(2)">3. Interactive Exploration</button>
-      <select id="yearSelector" onchange="updateYearAndRedraw()" style="display: none; margin-left: 10px;">
-        <option value="2024">2024</option>
-        <option value="2023" selected>2023</option>
-        <option value="2022">2022</option>
-        <option value="2021">2021</option>
-        <option value="2020">2020</option>
-        <option value="2019">2019</option>
-        <option value="2018">2018</option>
-        <option value="2017">2017</option>
-        <option value="2016">2016</option>
-        <option value="2015">2015</option>
-      </select>
+      <select id="yearSelect"></select>
     </div>
   </div>
 
@@ -36,102 +26,97 @@
     let data;
     let selectedYear = 2023;
     let currentScene = 0;
-    const width = 900, height = 500;
 
+    const width = 900, height = 500;
     const svg = d3.select("#scene").append("svg")
       .attr("width", width).attr("height", height);
 
-    const tooltip = d3.select("#tooltip");
+    const descriptions = [
+      `The chart below shows the global trend of electric vehicle (EV) sales from 2010 to 2024. Sales remained modest until <strong>2020</strong>, when rapid growth began, culminating in a record-breaking <strong>2023</strong>.`,
+      `The bar chart below compares EV sales across countries in <strong class="highlight">${selectedYear}</strong>. Use the dropdown to select a different year and see how rankings change.`,
+      `This interactive view allows you to explore EV sales by country for the selected year <strong class="highlight">${selectedYear}</strong>. Hover over bubbles for more information.`
+    ];
+
+    function updateDescription() {
+      d3.select("#description").html(descriptions[currentScene]);
+    }
 
     function showScene(index) {
-      svg.selectAll("*").remove();
       currentScene = index;
-      document.getElementById("yearSelector").style.display = (index === 1 || index === 2) ? "inline-block" : "none";
+      svg.selectAll("*").remove();
+      updateDescription();
       if (index === 0) drawGlobalTrend();
       else if (index === 1) drawCountryBarChart();
       else if (index === 2) drawInteractiveScatter();
     }
 
-    function updateYearAndRedraw() {
-      selectedYear = +document.getElementById("yearSelector").value;
+    function updateScenes() {
       showScene(currentScene);
     }
 
     d3.csv("data/IEA-EV-dataEV salesHistoricalCars.csv").then(raw => {
       data = raw.filter(d => d.parameter === "EV sales" && d.unit === "Vehicles");
+      const yearSet = Array.from(new Set(data.map(d => +d.year))).sort((a,b) => a-b);
+      const yearSelect = d3.select("#yearSelect");
+      yearSelect.selectAll("option")
+        .data(yearSet)
+        .enter()
+        .append("option")
+        .attr("value", d => d)
+        .text(d => d);
+      yearSelect.property("value", selectedYear);
+      yearSelect.on("change", function() {
+        selectedYear = +this.value;
+        updateScenes();
+      });
       showScene(0);
     });
 
-    function showTooltip(html, event) {
-      tooltip.html(html)
-        .style("left", event.pageX + 10 + "px")
-        .style("top", event.pageY - 28 + "px")
-        .style("display", "block");
-    }
-
-    function hideTooltip() {
-      tooltip.style("display", "none");
-    }
-
     function drawGlobalTrend() {
-      const worldData = data.filter(d => d.region === "World").reduce((acc, d) => {
-        const y = +d.year;
-        acc[y] = (acc[y] || 0) + +d.value;
-        return acc;
-      }, {});
-
-      const entries = Object.entries(worldData).map(([year, total]) => ({
-        year: +year,
-        total
+      const worldData = data.filter(d => d.region === "World").map(d => ({
+        year: +d.year,
+        total: +d.value
       })).sort((a, b) => a.year - b.year);
 
-      const x = d3.scaleLinear().domain(d3.extent(entries, d => d.year)).range([60, width - 40]);
-      const y = d3.scaleLinear().domain([0, d3.max(entries, d => d.total)]).range([height - 40, 40]);
+      const x = d3.scaleLinear().domain(d3.extent(worldData, d => d.year)).range([60, width-40]);
+      const y = d3.scaleLinear().domain([0, d3.max(worldData, d => d.total)]).range([height-40, 40]);
 
-      svg.append("g").attr("transform", `translate(0,${height - 40})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
-      svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
+      svg.append("g").attr("transform", `translate(0,${height-40})`).call(d3.axisBottom(x).tickFormat(d3.format("d")));
+      svg.append("g").attr("transform", `translate(60,0)\`).call(d3.axisLeft(y));
 
       const line = d3.line()
         .x(d => x(d.year))
         .y(d => y(d.total));
 
       svg.append("path")
-        .datum(entries)
+        .datum(worldData)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 2)
         .attr("d", line);
 
       svg.selectAll("circle")
-        .data(entries)
+        .data(worldData)
         .enter()
         .append("circle")
         .attr("cx", d => x(d.year))
         .attr("cy", d => y(d.total))
         .attr("r", 4)
         .attr("fill", "darkorange")
-        .on("mouseover", (event, d) => showTooltip(`Year: ${d.year}<br/>EV Sales: ${Math.round(d.total).toLocaleString()}`, event))
-        .on("mouseout", hideTooltip);
+        .append("title").text(d => `${d.year}: ${Math.round(d.total).toLocaleString()} EVs`);
 
       svg.append("line")
         .attr("x1", x(2020)).attr("x2", x(2020))
-        .attr("y1", y(0)).attr("y2", y(worldData[2021]))
+        .attr("y1", y(0)).attr("y2", y(worldData.find(d => d.year === 2020).total))
         .attr("class", "annotation-line");
 
       svg.append("text")
-        .attr("x", x(2020) + 5)
-        .attr("y", y(worldData[2020]) - 10)
+        .attr("x", x(2020) + 4).attr("y", y(worldData.find(d => d.year === 2020).total) - 10)
         .attr("class", "annotation")
         .text("Rapid growth begins");
 
-      svg.append("line")
-        .attr("x1", x(2023)).attr("x2", x(2023))
-        .attr("y1", y(0)).attr("y2", y(worldData[2023]))
-        .attr("class", "annotation-line");
-
       svg.append("text")
-        .attr("x", x(2023) + 5)
-        .attr("y", y(worldData[2023]) - 10)
+        .attr("x", x(2023) + 4).attr("y", y(worldData.find(d => d.year === 2023).total) - 10)
         .attr("class", "annotation")
         .text("2023 record sales");
 
@@ -150,8 +135,8 @@
       const x = d3.scaleLinear().domain([0, d3.max(entries, d => d.sales)]).range([60, width - 20]);
       const y = d3.scaleBand().domain(entries.map(d => d.country)).range([60, height - 40]).padding(0.1);
 
-      svg.append("g").attr("transform", `translate(0,${height - 40})`).call(d3.axisBottom(x));
-      svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
+      svg.append("g").attr("transform", `translate(0,${height-40})`).call(d3.axisBottom(x));
+      svg.append("g").attr("transform", `translate(60,0)\`).call(d3.axisLeft(y));
 
       svg.selectAll("rect")
         .data(entries)
@@ -162,8 +147,7 @@
         .attr("width", d => x(d.sales) - 60)
         .attr("height", y.bandwidth())
         .attr("fill", "teal")
-        .on("mouseover", (event, d) => showTooltip(`${d.country}: ${Math.round(d.sales).toLocaleString()} EVs`, event))
-        .on("mouseout", hideTooltip);
+        .append("title").text(d => `${d.country}: ${Math.round(d.sales).toLocaleString()} EVs`);
 
       svg.append("text")
         .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
@@ -181,7 +165,7 @@
 
       svg.append("g").attr("transform", `translate(0,${height - 40})`).call(d3.axisBottom(x)).selectAll("text")
         .attr("transform", "rotate(-45)").style("text-anchor", "end");
-      svg.append("g").attr("transform", `translate(60,0)`).call(d3.axisLeft(y));
+      svg.append("g").attr("transform", `translate(60,0)\`).call(d3.axisLeft(y));
 
       svg.selectAll("circle")
         .data(entries)
@@ -191,8 +175,7 @@
         .attr("cy", d => y(d.value))
         .attr("r", 6)
         .attr("fill", "tomato")
-        .on("mouseover", (event, d) => showTooltip(`${d.region}: ${Math.round(d.value).toLocaleString()} EVs`, event))
-        .on("mouseout", hideTooltip);
+        .append("title").text(d => `${d.region}: ${Math.round(d.value).toLocaleString()} EVs`);
 
       svg.append("text")
         .attr("x", width/2).attr("y", 30).attr("text-anchor", "middle")
